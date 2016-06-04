@@ -40,13 +40,16 @@
             "type" : "meale",
             "states" : [
                 {
-                    "id" : "q1"
+                    "id" : "q1",
+                    "output" : ""
                 },
                 {
-                    "id" : "q2"
+                    "id" : "q2",
+                    "output" : ""
                 },
                 {
-                    "id" : "q3"
+                    "id" : "q3",
+                    "output" : ""
                 }
             ],
             "transitions" : [
@@ -75,31 +78,40 @@
             "type" : "moore",
             "states" : [
                 {
-                    "id" : "q1"
+                    "id" : "q1",
+                    "output" : ""
                 },
                 {
-                    "id" : "q2"
+                    "id" : "q2",
+                    "output" : ""
                 },
                 {
-                    "id" : "q3"
+                    "id" : "q3",
+                    "output" : ""
                 },
                 {
-                    "id" : "q4"
+                    "id" : "q4",
+                    "output" : ""
                 },
                 {
-                    "id" : "q5"
+                    "id" : "q5",
+                    "output" : ""
                 },
                 {
-                    "id" : "q6"
+                    "id" : "q6",
+                    "output" : ""
                 },
                 {
-                    "id" : "q7"
+                    "id" : "q7",
+                    "output" : ""
                 },
                 {
-                    "id" : "q8"
+                    "id" : "q8",
+                    "output" : ""
                 },
                 {
-                    "id" : "q9"
+                    "id" : "q9",
+                    "output" : ""
                 }
             ],
             "transitions" : [
@@ -218,13 +230,16 @@
             "type" : "meale",
             "states" : [
                 {
-                    "id" : "q0"
+                    "id" : "q0",
+                    "output" : ""
                 },
                 {
-                    "id" : "q1"
+                    "id" : "q1",
+                    "output" : ""
                 },
                 {
-                    "id" : "q2"
+                    "id" : "q2",
+                    "output" : ""
                 }
             ],
             "transitions" : [
@@ -253,13 +268,16 @@
             "type" : "meale",
             "states" : [
                 {
-                    "id" : "q0"
+                    "id" : "q0",
+                    "output" : ""
                 },
                 {
-                    "id" : "q1"
+                    "id" : "q1",
+                    "output" : ""
                 },
                 {
-                    "id" : "q2"
+                    "id" : "q2",
+                    "output" : ""
                 }
             ],
             "transitions" : [
@@ -288,13 +306,16 @@
             "type" : "meale",
             "states" : [
                 {
-                    "id" : "q1"
+                    "id" : "q1",
+                    "output" : ""
                 },
                 {
-                    "id" : "q2"
+                    "id" : "q2",
+                    "output" : ""
                 },
                 {
-                    "id" : "q3"
+                    "id" : "q3",
+                    "output" : ""
                 }
             ],
             "transitions" : [
