@@ -3,6 +3,8 @@
 
 typedef std::map<std::string, SCell> States;
 
+static const std::string IMPOSSIBLE_CONVERT_TO_THIS_TYPE = "Impossible convert to this type!!!";
+
 class CStateMachineProcessor
 {
 public:
