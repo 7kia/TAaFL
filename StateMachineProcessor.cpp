@@ -106,12 +106,18 @@ json_spirit::Array CStateMachineProcessor::GetTransitions(CStateMachine const& s
 
 CStateMachine & CStateMachineProcessor::Get(string const& id)
 {
-	auto it = find_if(m_stateMachines.begin(), m_stateMachines.end(),
-		[id](CStateMachine const& sm) {return sm.GetId() == id; });
+	auto it = find_if(m_stateMachines.begin()
+					, m_stateMachines.end()
+					, [id](CStateMachine const& sm) 
+					{
+						return sm.GetId() == id; 
+					} );
+
 	if (it == m_stateMachines.end())
 	{
 		throw invalid_argument("Cannot find state machine with this id");
 	}
+
 	return *it;
 }
 
