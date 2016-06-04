@@ -8,15 +8,15 @@ CStateMachine::CStateMachine(json_spirit::Object const& smData)
 {
 	auto type = smData.at(1).value_.get_str();
 	m_id = smData.at(0).value_.get_str();
-	if (type == "meale")
+	if (type == MEELE_NAME)
 	{
 		m_table = GetMealeTable(smData);
-		m_type = "meale";
+		m_type = MEELE_NAME;
 	}
-	else if (type == "moore")
+	else if (type == MOORE_NAME)
 	{
 		m_table = GetMooreTable(smData);
-		m_type = "moore";
+		m_type = MOORE_NAME;
 	}
 }
 

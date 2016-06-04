@@ -118,7 +118,7 @@ CStateMachine & CStateMachineProcessor::Get(string const& id)
 
 void CStateMachineProcessor::TransferToMeale(CStateMachine & sm)
 {
-	if (sm.GetType() != "meale")
+	if (sm.GetType() != MEELE_NAME)
 	{
 		map<string, string> mooreStates;
 		for (auto const & cell : sm.GetTable()[0])
@@ -140,7 +140,7 @@ void CStateMachineProcessor::TransferToMeale(CStateMachine & sm)
 		{
 			cell.second = "";
 		}
-		sm.SetType("meale");
+		sm.SetType(MEELE_NAME);
 		m_jsonStateMachines.push_back(ToJson(sm));
 	}
 
@@ -169,7 +169,7 @@ States CStateMachineProcessor::GetNewStates(StateTable const &meale)
 
 void CStateMachineProcessor::TransferToMoore(CStateMachine & sm)
 {
-	if (sm.GetType() == "moore")
+	if (sm.GetType() == MOORE_NAME)
 	{
 		return;
 	}
@@ -219,7 +219,7 @@ void CStateMachineProcessor::TransferToMoore(CStateMachine & sm)
 		}
 	}
 	sm.GetTable() = transferedTable;
-	sm.SetType("moore");
+	sm.SetType(MOORE_NAME);
 	m_jsonStateMachines.push_back(ToJson(sm));
 }
 

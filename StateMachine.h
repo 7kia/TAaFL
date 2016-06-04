@@ -12,6 +12,9 @@
 typedef std::pair<std::string, std::string> SCell;
 typedef std::vector<std::vector<SCell>> StateTable;
 
+static const std::string MOORE_NAME = "moore";
+static const std::string MEELE_NAME = "meale";
+
 class CStateMachine
 {
 public:
