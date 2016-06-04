@@ -8,6 +8,7 @@ class CStateMachineProcessor
 public:
 	CStateMachineProcessor() = delete;
 	CStateMachineProcessor(std::string const& input, std::string const& output);
+
 	void WriteToFile();
 	void TransferToMeale(CStateMachine & sm);
 	void TransferToMoore(CStateMachine & sm);

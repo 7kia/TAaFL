@@ -13,7 +13,7 @@ bool operator ==(vector<SCell> const &v1, vector<SCell> const &v2)
 
 	for (size_t i = 0; i != v1.size(); ++i)
 	{
-		if (v1[i].first != v2[i].first)
+		if (v1[i].state != v2[i].state)
 		{
 			return false;
 		}
@@ -69,10 +69,10 @@ json_spirit::Array CStateMachineProcessor::GetStates(CStateMachine const& sm)
 	auto smStates = sm.GetTable()[0];
 	for (size_t i = 1; i < smStates.size(); i++)
 	{
-		Object state = {Pair("id", smStates[i].first)};
-		if (smStates[i].second != "")
+		Object state = {Pair("id", smStates[i].state)};
+		if (smStates[i].state != "")
 		{
-			state.push_back(Pair("output", smStates[i].second));
+			state.push_back(Pair("output", smStates[i].outputSymbol));
 		}
 		states.push_back(state);
 	}
@@ -87,16 +87,16 @@ json_spirit::Array CStateMachineProcessor::GetTransitions(CStateMachine const& s
 	{
 		for (size_t col = 1; col < states.size(); col++)
 		{
-			if (sm.GetTable()[row][col].first != "")
+			if (sm.GetTable()[row][col].state != "")
 			{
 				Object cell;
-				cell.push_back(Pair("input", sm.GetTable()[row][0].first));
-				if (states[col].second == "")
+				cell.push_back(Pair("input", sm.GetTable()[row][0].state));
+				if (states[col].outputSymbol == "")
 				{
-					cell.push_back(Pair("output", sm.GetTable()[row][col].second));
+					cell.push_back(Pair("output", sm.GetTable()[row][col].outputSymbol));
 				}
-				cell.push_back(Pair("from", states[col].first));
-				cell.push_back(Pair("to", sm.GetTable()[row][col].first));
+				cell.push_back(Pair("from", states[col].state));
+				cell.push_back(Pair("to", sm.GetTable()[row][col].state));
 				transitions.push_back(cell);
 			}
 		}
@@ -123,22 +123,22 @@ void CStateMachineProcessor::TransferToMeale(CStateMachine & sm)
 		map<string, string> mooreStates;
 		for (auto const & cell : sm.GetTable()[0])
 		{
-			mooreStates.insert({ cell.first, cell.second });
+			mooreStates.insert({ cell.state, cell.outputSymbol });
 		}
 		for (auto & row : sm.GetTable())
 		{
 			for (auto & cell : row)
 			{
-				auto it = mooreStates.find(cell.first);
+				auto it = mooreStates.find(cell.state);
 				if (it != mooreStates.end())
 				{
-					cell.second = it->second;
+					cell.outputSymbol = it->second;
 				}
 			}
 		}
 		for (auto & cell : sm.GetTable()[0])
 		{
-			cell.second = "";
+			cell.outputSymbol = "";
 		}
 		sm.SetType(MEELE_NAME);
 		m_jsonStateMachines.push_back(ToJson(sm));
@@ -153,7 +153,7 @@ States CStateMachineProcessor::GetNewStates(StateTable const &meale)
 	{
 		for (auto & cell : row)
 		{
-			if (!cell.second.empty()
+			if (!cell.outputSymbol.empty()
 				&& (find_if(mooreStates.begin(), mooreStates.end(),
 					[&cell](auto const &state)
 			{return state.second == cell; })
@@ -180,7 +180,7 @@ void CStateMachineProcessor::TransferToMoore(CStateMachine & sm)
 
 	for (auto &state : mooreStates)
 	{
-		transferedTable[0].push_back(SCell(state.first, state.second.second));
+		transferedTable[0].push_back(SCell(state.first, state.second.outputSymbol));
 	}
 
 	for (size_t i = 1; i < smTable.size(); ++i)
@@ -191,7 +191,7 @@ void CStateMachineProcessor::TransferToMoore(CStateMachine & sm)
 	int k = 1;
 	for (auto &input : smTable)
 	{
-		if (input[0] != make_pair<string, string>( "", "" ))
+		if (input[0] != SCell())
 		{
 			transferedTable[k][0] = input[0];
 			++k;
@@ -200,10 +200,10 @@ void CStateMachineProcessor::TransferToMoore(CStateMachine & sm)
 
 	for (size_t i = 1; i < transferedTable[0].size(); ++i)
 	{
-		auto mooreState = mooreStates.at(transferedTable[0][i].first).first;
+		auto mooreState = mooreStates.at(transferedTable[0][i].state).state;
 		for (size_t j = 0; j < smTable[0].size() - 1; ++j)
 		{
-			if (smTable[0][j].first == mooreState)
+			if (smTable[0][j].state == mooreState)
 			{
 				for (size_t k = 1; k < smTable.size(); ++k)
 				{
@@ -212,7 +212,7 @@ void CStateMachineProcessor::TransferToMoore(CStateMachine & sm)
 						[&state2](auto const &state) {return state.second == state2; }));
 					if (it != mooreStates.end())
 					{
-						transferedTable[j][k].first = it->first;
+						transferedTable[j][k].state = it->first;
 					}
 				}
 			}
@@ -240,22 +240,22 @@ void CStateMachineProcessor::Determine(CStateMachine & sm)
 			//split state -from- and add to cell -to- each of result
 			//if -to- state is new then add it to dTable states and addedStatesCount++
 			vector<string> splittedState;
-			boost::split(splittedState, dTable[0][col].first, bind2nd(equal_to<char>(), ';'));
+			boost::split(splittedState, dTable[0][col].state, bind2nd(equal_to<char>(), ';'));
 			SCell cell;
 			for (auto & state : splittedState)
 			{
 				auto it = find_if(sm.GetTable()[0].begin(), sm.GetTable()[0].end(),
-					[&](SCell const& pair) {return pair.first == state; });
+					[&](SCell const& pair) {return pair.state == state; });
 				auto pos = it - sm.GetTable()[0].begin();
-				if (sm.GetTable()[row][pos].first != ""
-					&& cell.first.find(sm.GetTable()[row][pos].first) == string::npos)
+				if (sm.GetTable()[row][pos].state != ""
+					&& cell.state.find(sm.GetTable()[row][pos].state) == string::npos)
 				{
-					cell.first += sm.GetTable()[row][pos].first;
-					cell.first += ";";
+					cell.state += sm.GetTable()[row][pos].state;
+					cell.state += ";";
 				}
 			}
 			dTable[row].push_back(cell);
-			auto & cellFirst = dTable[row][col].first;
+			auto & cellFirst = dTable[row][col].state;
 			cellFirst.erase(cellFirst.end() - 1, cellFirst.end());
 			vector<string> compareVec;
 			boost::split(compareVec, cellFirst, bind2nd(equal_to<char>(), ';'));
@@ -263,7 +263,7 @@ void CStateMachineProcessor::Determine(CStateMachine & sm)
 			auto it = find_if(dTable[0].begin(), dTable[0].end(),
 				[&](SCell const& pair) {
 				vector<string> compare2;
-				boost::split(compare2, pair.first, bind2nd(equal_to<char>(), ';'));
+				boost::split(compare2, pair.state, bind2nd(equal_to<char>(), ';'));
 				std::sort(compare2.begin(), compare2.end());
 				return compare2 == compareVec;
 			});
@@ -280,7 +280,7 @@ void CStateMachineProcessor::Determine(CStateMachine & sm)
 	for (size_t i = 1; i < dTable[0].size(); i++)
 	{
 		vector<string> state;
-		boost::split(state, dTable[0][i].first, bind2nd(equal_to<char>(), ';'));
+		boost::split(state, dTable[0][i].state, bind2nd(equal_to<char>(), ';'));
 		sort(state.begin(), state.end());
 		string strState;
 		strState = accumulate(state.begin(), state.end(), strState);
@@ -293,11 +293,11 @@ void CStateMachineProcessor::Determine(CStateMachine & sm)
 		{
 
 			vector<string> state;
-			boost::split(state, dTable[row][col].first, bind2nd(equal_to<char>(), ';'));
+			boost::split(state, dTable[row][col].state, bind2nd(equal_to<char>(), ';'));
 			sort(state.begin(), state.end());
 			string strState;
 			strState = accumulate(state.begin(), state.end(), strState);
-			dTable[row][col].first = newStates.at(strState);
+			dTable[row][col].state = newStates.at(strState);
 		}
 	}
 	sm.GetTable() = dTable;
@@ -311,7 +311,7 @@ StateTable CStateMachineProcessor::AllocateOfEquivalenceClass(StateTable resourc
 	while (resourceST[0].size() != 1)
 	{
 		auto currentColumn = GetColumn(resourceST, 1);
-		classes.emplace(resourceST[0][1].first, classNumber);
+		classes.emplace(resourceST[0][1].state, classNumber);
 		for (auto i = 0; i != resourceST.size(); ++i)
 		{
 			auto &vec = resourceST[i];
@@ -322,7 +322,7 @@ StateTable CStateMachineProcessor::AllocateOfEquivalenceClass(StateTable resourc
 			auto cmpColumn = GetColumn(resourceST, i);
 			if (cmpColumn == currentColumn)
 			{
-				classes.emplace(resourceST[0][i].first, classNumber);
+				classes.emplace(resourceST[0][i].state, classNumber);
 			}
 		}
 		++classNumber;
@@ -333,10 +333,10 @@ StateTable CStateMachineProcessor::AllocateOfEquivalenceClass(StateTable resourc
 	{
 		for (auto j = 1; j != outputST[0].size(); ++j)
 		{
-			auto state = classes.find(originalST[i][j].first);
+			auto state = classes.find(originalST[i][j].state);
 			if (state != classes.end())
 			{
-				outputST[i][j].first = to_string(state->second);
+				outputST[i][j].state = to_string(state->second);
 			}
 		}
 	}
@@ -357,7 +357,7 @@ void CStateMachineProcessor::Minimize(CStateMachine & sm)
 	{
 		for (unsigned j = 1; j != tempCopyST[0].size(); ++j)
 		{
-			swap(tempCopyST[i][j].first, tempCopyST[i][j].second);
+			//swap(tempCopyST[i][j].state, tempCopyST[i][j].outputSymbol);
 		}
 	}
 	//

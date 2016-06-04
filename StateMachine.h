@@ -9,7 +9,21 @@
 
 #include "json_spirit/json_spirit.h"
 
-typedef std::pair<std::string, std::string> SCell;
+//typedef std::pair<std::string, std::string> SCell;
+
+struct SCell
+{
+	SCell();
+	SCell(const std::string & state, const std::string & outputSymbol);
+
+	std::string state;
+	std::string outputSymbol;
+
+	friend bool operator==(const SCell & first, const SCell & second);
+	friend bool operator!=(const SCell & first, const SCell & second);
+
+};
+
 typedef std::vector<std::vector<SCell>> StateTable;
 
 static const std::string MOORE_NAME = "moore";

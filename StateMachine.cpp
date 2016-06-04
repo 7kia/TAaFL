@@ -4,6 +4,17 @@
 using namespace std;
 using namespace json_spirit;
 
+SCell::SCell()
+{
+}
+
+SCell::SCell(const std::string & state, const std::string & outputSymbol)
+	: state(state)
+	, outputSymbol(outputSymbol)
+{
+}
+
+
 CStateMachine::CStateMachine(json_spirit::Object const& smData)
 {
 	auto type = smData.at(1).value_.get_str();
@@ -69,8 +80,8 @@ StateTable CStateMachine::GetMealeTable(Object const &sm)
 	for (auto state : states)
 	{
 		SCell cellState;
-		cellState.first = state.get_obj().at(0).value_.get_str();
-		cellState.second = "";
+		cellState.state = state.get_obj().at(0).value_.get_str();
+		cellState.outputSymbol = "";
 		table[0].push_back(cellState);
 
 	}
@@ -89,7 +100,7 @@ StateTable CStateMachine::GetMealeTable(Object const &sm)
 		auto iterator = std::find(inputs.begin(), inputs.end(), input);
 		auto iter = find_if(table[0].begin(), table[0].end(), [&](auto const& pair)
 		{
-			return pair.first == from;
+			return pair.state == from;
 		});
 
 		auto columnPos = iter - table[0].begin();
@@ -106,7 +117,7 @@ StateTable CStateMachine::GetMealeTable(Object const &sm)
 		{
 			auto rowWithInput = find_if(table.begin(), table.end(), [&](auto const& row)
 			{
-				return row[0].first == input;
+				return row[0].state == input;
 			});
 			rowWithInput->at(columnPos) = { to, output };
 		}
@@ -125,8 +136,8 @@ StateTable CStateMachine::GetMooreTable(Object const &sm)
 	for (auto & state : states)
 	{
 		SCell cellState;
-		cellState.first = state.get_obj()[0].value_.get_str();
-		cellState.second = state.get_obj()[1].value_.get_str();
+		cellState.state = state.get_obj()[0].value_.get_str();
+		cellState.outputSymbol = state.get_obj()[1].value_.get_str();
 		table[0].push_back(cellState);
 	}
 
@@ -143,7 +154,7 @@ StateTable CStateMachine::GetMooreTable(Object const &sm)
 		auto iterator = std::find(inputs.begin(), inputs.end(), input);
 		auto iter = find_if(table[0].begin(), table[0].end(), [&](auto const& pair)
 		{
-			return pair.first == from;
+			return pair.state == from;
 		});
 		auto columnPos = iter - table[0].begin();
 		if (iterator == inputs.end())
@@ -156,12 +167,22 @@ StateTable CStateMachine::GetMooreTable(Object const &sm)
 		}
 		else
 		{
-			auto rowWithInput = find_if(table.begin(), table.end(), [&](auto const& row)
+			auto rowWithInput = find_if(table.begin(), table.end(), [&](const vector<SCell> & row)// TDDO
 			{
-				return row[0].first == input;
+				return row[0].state == input;
 			});
 			rowWithInput->at(columnPos) = { to, "" };
 		}
 	}
 	return table;
+}
+
+bool operator==(const SCell & first, const SCell & second)
+{
+	return (first.state == second.state) && (first.outputSymbol == second.outputSymbol);
+}
+
+bool operator!=(const SCell & first, const SCell & second)
+{
+	return !(first == second);
 }
