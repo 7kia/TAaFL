@@ -1,7 +1,7 @@
 #pragma once
 #include "StateMachine.h"
 
-typedef std::map<std::string, std::pair<std::string, std::string>> States;
+typedef std::map<std::string, SCell> States;
 
 class CStateMachineProcessor
 {

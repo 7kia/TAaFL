@@ -1,8 +1,16 @@
 #pragma once
 #include <vector>
+#include <map>
+#include <fstream>
+#include <sstream>
+#include <functional>
+#include <boost/algorithm/string.hpp>
+#include <numeric>
+
 #include "json_spirit/json_spirit.h"
 
-typedef std::vector<std::vector<std::pair<std::string, std::string>>> StateTable;
+typedef std::pair<std::string, std::string> SCell;
+typedef std::vector<std::vector<SCell>> StateTable;
 
 class CStateMachine
 {

@@ -1,4 +1,6 @@
+#include "stdafx.h"
 #include "StateMachine.h"
+
 using namespace std;
 using namespace json_spirit;
 
@@ -66,7 +68,7 @@ StateTable CStateMachine::GetMealeTable(Object const &sm)
 
 	for (auto state : states)
 	{
-		pair<string, string> cellState;
+		SCell cellState;
 		cellState.first = state.get_obj().at(0).value_.get_str();
 		cellState.second = "";
 		table[0].push_back(cellState);
@@ -94,7 +96,7 @@ StateTable CStateMachine::GetMealeTable(Object const &sm)
 
 		if (iterator == inputs.end())
 		{
-			auto vec = vector<pair<string, string>>(columnsCount);
+			auto vec = vector<SCell>(columnsCount);
 			vec[0] = { input, "" };
 			vec[columnPos] = { to, output };
 			table.push_back(vec);
@@ -122,7 +124,7 @@ StateTable CStateMachine::GetMooreTable(Object const &sm)
 
 	for (auto & state : states)
 	{
-		pair<string, string> cellState;
+		SCell cellState;
 		cellState.first = state.get_obj()[0].value_.get_str();
 		cellState.second = state.get_obj()[1].value_.get_str();
 		table[0].push_back(cellState);
@@ -146,7 +148,7 @@ StateTable CStateMachine::GetMooreTable(Object const &sm)
 		auto columnPos = iter - table[0].begin();
 		if (iterator == inputs.end())
 		{
-			auto vec = vector<pair<string, string>>(columnsCount);
+			auto vec = vector<SCell>(columnsCount);
 			vec[0] = { input, "" };
 			vec[columnPos] = { to, "" };
 			table.push_back(vec);

@@ -4,7 +4,7 @@
 using namespace json_spirit;
 using namespace std;
 
-bool operator ==(vector<pair<string, string>> const &v1, vector<pair<string, string>> const &v2)
+bool operator ==(vector<SCell> const &v1, vector<SCell> const &v2)
 {
 	if (v1.size() != v2.size())
 	{
@@ -21,9 +21,9 @@ bool operator ==(vector<pair<string, string>> const &v1, vector<pair<string, str
 	return true;
 }
 
-vector<pair<string, string>> GetColumn(StateTable const &sm, size_t columnNumber)
+vector<SCell> GetColumn(StateTable const &sm, size_t columnNumber)
 {
-	vector<pair<string, string>> v;
+	vector<SCell> v;
 	for (auto it = sm.begin() + 1; it != sm.end(); ++it)
 	{
 		v.push_back((*it)[columnNumber]);
@@ -180,12 +180,12 @@ void CStateMachineProcessor::TransferToMoore(CStateMachine & sm)
 
 	for (auto &state : mooreStates)
 	{
-		transferedTable[0].push_back(pair<string, string>(state.first, state.second.second));
+		transferedTable[0].push_back(SCell(state.first, state.second.second));
 	}
 
 	for (size_t i = 1; i < smTable.size(); ++i)
 	{
-		auto vec = vector<pair<string, string>>(transferedTable[0].size());
+		auto vec = vector<SCell>(transferedTable[0].size());
 		transferedTable.push_back(vec);
 	}
 	int k = 1;
@@ -241,11 +241,11 @@ void CStateMachineProcessor::Determine(CStateMachine & sm)
 			//if -to- state is new then add it to dTable states and addedStatesCount++
 			vector<string> splittedState;
 			boost::split(splittedState, dTable[0][col].first, bind2nd(equal_to<char>(), ';'));
-			pair<string, string> cell;
+			SCell cell;
 			for (auto & state : splittedState)
 			{
 				auto it = find_if(sm.GetTable()[0].begin(), sm.GetTable()[0].end(),
-					[&](pair<string, string> const& pair) {return pair.first == state; });
+					[&](SCell const& pair) {return pair.first == state; });
 				auto pos = it - sm.GetTable()[0].begin();
 				if (sm.GetTable()[row][pos].first != ""
 					&& cell.first.find(sm.GetTable()[row][pos].first) == string::npos)
@@ -261,7 +261,7 @@ void CStateMachineProcessor::Determine(CStateMachine & sm)
 			boost::split(compareVec, cellFirst, bind2nd(equal_to<char>(), ';'));
 			std::sort(compareVec.begin(), compareVec.end());
 			auto it = find_if(dTable[0].begin(), dTable[0].end(),
-				[&](pair<string, string> const& pair) {
+				[&](SCell const& pair) {
 				vector<string> compare2;
 				boost::split(compare2, pair.first, bind2nd(equal_to<char>(), ';'));
 				std::sort(compare2.begin(), compare2.end());

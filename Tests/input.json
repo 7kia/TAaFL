@@ -1,0 +1,107 @@
+{
+    "state machine": [{
+        "id": "StateMachineX",
+        "type": "meale",
+        "states": [{
+            "id": "q1"
+        }, {
+            "id": "q2"
+        }, {
+            "id": "q3"
+        }],
+        "transitions": [{
+            "input": "x1",
+            "output": "y1",
+            "from": "q1",
+            "to": "q1"
+        }, {
+            "input": "x2",
+            "output": "y1",
+            "from": "q1",
+            "to": "q2"
+        }, {
+            "input": "x1",
+            "output": "y2",
+            "from": "q2",
+            "to": "q3"
+        }]
+    }, {
+        "id": "StateMachineY",
+        "type": "moore",
+        "states": [{
+            "id": "q1",
+            "output": "y1"
+        }, {
+            "id": "q2",
+            "output": "y3"
+        }, {
+            "id": "q3",
+            "output": "y2"
+        }],
+        "transitions": [{
+            "input": "x1",
+            "from": "q1",
+            "to": "q1"
+        }, {
+            "input": "x2",
+            "from": "q1",
+            "to": "q2"
+        }, {
+            "input": "x1",
+            "from": "q2",
+            "to": "q3"
+        }]
+    },{
+        "id": "UndeterminedX",
+        "type": "moore",
+        "states": [{
+            "id": "q0",
+            "output": ""
+        }, {
+            "id": "q1",
+            "output": ""
+        }, {
+            "id": "q2",
+            "output": ""
+        }, {
+            "id": "q3",
+            "output": ""
+        }, {
+            "id": "q4",
+            "output": ""
+        }],
+        "transitions": [{
+            "input": "0",
+            "from": "q0",
+            "to": "q0;q1"
+        }, {
+            "input": "1",
+            "from": "q0",
+            "to": "q0;q3"
+        }, {
+            "input": "0",
+            "from": "q1",
+            "to": "q2"
+        }, {
+            "input": "0",
+            "from": "q2",
+            "to": "q2"
+        }, {
+            "input": "1",
+            "from": "q2",
+            "to": "q2"
+        }, {
+            "input": "1",
+            "from": "q3",
+            "to": "q4"
+        }, {
+            "input": "0",
+            "from": "q4",
+            "to": "q4"
+        }, {
+            "input": "1",
+            "from": "q4",
+            "to": "q4"
+        }]
+    }]
+}

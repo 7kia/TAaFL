@@ -22,6 +22,7 @@ void CCommandHandler::HandleCommand()
 {
 	string cmd;
 	getline(m_input, cmd);
+
 	istringstream ss(cmd);
 	string action;
 	ss >> action;
