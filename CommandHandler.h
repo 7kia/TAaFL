@@ -11,8 +11,8 @@ public:
 	void HandleCommand();
 	~CCommandHandler() = default;
 private:
-	void TransferToMeale(std::istream & strm);
-	void TransferToMoore(std::istream & strm);
+	void ConvertToMeale(std::istream & strm);
+	void ConvertToMoore(std::istream & strm);
 	void Determine(std::istream & strm);
 	void Minimize(std::istream & strm);
 	void WriteOutputToFile(std::istream & strm);

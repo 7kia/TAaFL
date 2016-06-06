@@ -124,7 +124,7 @@ CStateMachine & CStateMachineProcessor::Get(string const& id)
 }
 
 
-void CStateMachineProcessor::TransferToMeale(CStateMachine & sm)
+void CStateMachineProcessor::ConvertToMeale(CStateMachine & sm)
 {
 	if (sm.GetType() != MEELE_NAME)
 	{
@@ -180,7 +180,7 @@ States CStateMachineProcessor::GetNewStates(StateTable const &meale)
 	return mooreStates;
 }
 
-void CStateMachineProcessor::TransferToMoore(CStateMachine & sm)
+void CStateMachineProcessor::ConvertToMoore(CStateMachine & sm)
 {
 	if (sm.GetType() == MOORE_NAME)
 	{
@@ -353,20 +353,25 @@ void CStateMachineProcessor::Determine(CStateMachine & sm)
 	m_jsonStateMachines.push_back(ToJson(sm));
 }
 
-StateTable CStateMachineProcessor::GetTableEquivalenceClass(StateTable resourceST, StateTable const & originalST)
+StateTable CStateMachineProcessor::GetTableEquivalenceClass(StateTable resourceST, StateTable const & origin)
 {
 	int classNumber = 1;
 	map<string, int> classes;
 	while (resourceST[0].size() != 1)
 	{
+
+		////////////////////////////////////////////////
+		// берём столбец и удаляем его
 		auto currentColumn = GetColumn(resourceST, 1);
 		classes.emplace(resourceST[0][1].state, classNumber);
 
-		for (size_t index = 0; index != resourceST.size(); ++index)
+		
+		for (size_t index = 0; index < resourceST.size(); index++)
 		{
 			auto &row = resourceST[index];
 			row.erase(row.begin() + 1);
 		}
+		////////////////////////////////////////////////
 
 		////////////////////////////////////////////////
 		// добавление к классу эквивалентности
@@ -382,18 +387,21 @@ StateTable CStateMachineProcessor::GetTableEquivalenceClass(StateTable resourceS
 		////////////////////////////////////////////////
 	}
 
-	auto outputST = originalST;
-	for (auto index = 1; index != outputST.size(); ++index)
+	////////////////////////////////////////////////
+	// формирование нового таблицы
+	auto outputST = origin;
+	for (auto indexColumn = 1; indexColumn < outputST.size(); indexColumn++)
 	{
-		for (auto secondIndex = 1; secondIndex != outputST[0].size(); ++secondIndex)
+		for (auto indexRow = 1; indexRow < outputST[0].size(); indexRow++)
 		{
-			auto state = classes.find(originalST[index][secondIndex].state);
+			auto state = classes.find(origin[indexColumn][indexRow].state);
 			if (state != classes.end())
 			{
-				outputST[index][secondIndex].state = to_string(state->second);
+				outputST[indexColumn][indexRow].state = to_string(state->second);
 			}
 		}
 	}
+	////////////////////////////////////////////////
 
 	return outputST;
 }
@@ -402,22 +410,21 @@ void CStateMachineProcessor::Minimize(CStateMachine & sm)
 {
 	if (sm.GetType() != MEELE_NAME)
 	{
-		TransferToMeale(sm);
+		ConvertToMeale(sm);
 	}
 
-	StateTable tempCopyST = sm.GetTable();
+	StateTable copyST = sm.GetTable();
 
-	StateTable oldSTCpy = GetTableEquivalenceClass(tempCopyST, sm.GetTable());
+	StateTable oldSTCopy = GetTableEquivalenceClass(copyST, sm.GetTable());
 	StateTable currentSTCpy;
 	do
 	{
-		currentSTCpy = GetTableEquivalenceClass(oldSTCpy, sm.GetTable());
-		oldSTCpy = currentSTCpy;
-
+		currentSTCpy = GetTableEquivalenceClass(oldSTCopy, sm.GetTable());
+		oldSTCopy = currentSTCpy;
 	} 
-	while (oldSTCpy != currentSTCpy);
+	while (oldSTCopy != currentSTCpy);
 
-	sm.GetTable() = oldSTCpy;
+	sm.GetTable() = oldSTCopy;
 	m_jsonStateMachines.push_back(ToJson(sm));
 }
 
