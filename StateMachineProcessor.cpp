@@ -117,7 +117,7 @@ CStateMachine & CStateMachineProcessor::Get(string const& id)
 
 	if (it == m_stateMachines.end())
 	{
-		throw invalid_argument("Cannot find state machine with this id");
+		throw invalid_argument(NOT_EXIST_THIS_STATE_MACHINE);
 	}
 
 	return *it;
@@ -153,6 +153,7 @@ void CStateMachineProcessor::TransferToMeale(CStateMachine & sm)
 	}
 
 }
+
 States CStateMachineProcessor::GetNewStates(StateTable const &meale)
 {
 	States mooreStates;
@@ -162,16 +163,20 @@ States CStateMachineProcessor::GetNewStates(StateTable const &meale)
 		for (auto & cell : row)
 		{
 			if (!cell.outputSymbol.empty()
-				&& (find_if(mooreStates.begin(), mooreStates.end(),
-					[&cell](auto const &state)
-			{return state.second == cell; })
-					== mooreStates.end()))
+				&& (find_if(mooreStates.begin()
+							, mooreStates.end()
+							, [&cell](const auto  &state)
+							{ 
+								return state.second == cell; 
+							}
+					) == mooreStates.end()) )
 			{
-				mooreStates.emplace("q" + to_string(count), cell);
-				++count;
+				mooreStates.emplace(NAME_NEW_STATE + to_string(count), cell);
+				count++;
 			}
 		}
 	}
+
 	return mooreStates;
 }
 
@@ -190,37 +195,48 @@ void CStateMachineProcessor::TransferToMoore(CStateMachine & sm)
 	// |    ||    |...
 	transferedTable[0].push_back({ "", "" });
 
+	////////////////////////////////////
+	// Первая колонка с состояниями
 	for (auto &state : mooreStates)
 	{
 		transferedTable[0].push_back(SCell(state.first, state.second.outputSymbol));
 	}
+	////////////////////////////////////
 
+	////////////////////////////////////
+	// Выделение места
 	for (size_t index = 1; index < smTable.size(); ++index)
 	{
-		vector<SCell> vec = vector<SCell>(transferedTable[0].size());
-		transferedTable.push_back(vec);
+		vector<SCell> cells = vector<SCell>(transferedTable[0].size());
+		transferedTable.push_back(cells);
 	}
+	////////////////////////////////////
 
-	int k = 1;
+	////////////////////////////////////
+	// Добавление входных символов
+	int indexRow = 1;
 	for (auto &input : smTable)
 	{
 		if (input[0] != SCell())
 		{
-			transferedTable[k][0] = input[0];
-			++k;
+			transferedTable[indexRow][0] = input[0];
+			++indexRow;
 		}
 	}
+	////////////////////////////////////
+
 
 	for (size_t index = 1; index < transferedTable[0].size(); ++index)
 	{
 		auto mooreState = mooreStates.at(transferedTable[0][index].state).state;
-		for (size_t secondIndex = 0; secondIndex < smTable[0].size() - 1; ++secondIndex)
+		// Ищем состояние сопадающее с состоянием
+		for (size_t mooreIndex = 1; mooreIndex < (smTable[0].size() - 1); mooreIndex++)
 		{
-			if (smTable[0][secondIndex].state == mooreState)
+			if (smTable[0][mooreIndex].state == mooreState)
 			{
 				for (size_t thirdIndex = 1; thirdIndex < smTable.size(); ++thirdIndex)
 				{
-					SCell state2 = smTable[secondIndex][thirdIndex];
+					SCell state2 = smTable[mooreIndex][thirdIndex];
 					auto it = find_if(mooreStates.begin()
 										, mooreStates.end()
 										, [&state2](auto const &state) 
@@ -232,11 +248,13 @@ void CStateMachineProcessor::TransferToMoore(CStateMachine & sm)
 
 					if (it != mooreStates.end())
 					{
-						transferedTable[secondIndex][thirdIndex].state = it->first;
+						transferedTable[mooreIndex][thirdIndex].state = it->first;
 					}
 				}
 			}
 		}
+
+
 	}
 
 	sm.GetTable() = transferedTable;
@@ -306,7 +324,7 @@ void CStateMachineProcessor::Determine(CStateMachine & sm)
 	}
 
 	map<string, string> newStates;
-	auto stateName = "q";
+	auto stateName = NAME_NEW_STATE;
 	for (size_t index = 1; index < dTable[0].size(); index++)
 	{
 		vector<string> state;
@@ -335,7 +353,7 @@ void CStateMachineProcessor::Determine(CStateMachine & sm)
 	m_jsonStateMachines.push_back(ToJson(sm));
 }
 
-StateTable CStateMachineProcessor::AllocateOfEquivalenceClass(StateTable resourceST, StateTable const & originalST)
+StateTable CStateMachineProcessor::GetTableEquivalenceClass(StateTable resourceST, StateTable const & originalST)
 {
 	int classNumber = 1;
 	map<string, int> classes;
@@ -346,9 +364,12 @@ StateTable CStateMachineProcessor::AllocateOfEquivalenceClass(StateTable resourc
 
 		for (size_t index = 0; index != resourceST.size(); ++index)
 		{
-			auto &vec = resourceST[index];
-			vec.erase(vec.begin() + 1);
+			auto &row = resourceST[index];
+			row.erase(row.begin() + 1);
 		}
+
+		////////////////////////////////////////////////
+		// добавление к классу эквивалентности
 		for (size_t index = 1; index < resourceST[0].size(); ++index)
 		{
 			auto cmpColumn = GetColumn(resourceST, index);
@@ -358,6 +379,7 @@ StateTable CStateMachineProcessor::AllocateOfEquivalenceClass(StateTable resourc
 			}
 		}
 		++classNumber;
+		////////////////////////////////////////////////
 	}
 
 	auto outputST = originalST;
@@ -372,36 +394,28 @@ StateTable CStateMachineProcessor::AllocateOfEquivalenceClass(StateTable resourc
 			}
 		}
 	}
+
 	return outputST;
 }
 
 void CStateMachineProcessor::Minimize(CStateMachine & sm)
 {
-	if (sm.GetType() != "melee")
+	if (sm.GetType() != MEELE_NAME)
 	{
 		TransferToMeale(sm);
 	}
 
-	//for swap Y and Q, for example
-	auto tempCopyST = sm.GetTable();
+	StateTable tempCopyST = sm.GetTable();
 
-	for (unsigned index = 1; index <= tempCopyST.size() - 1; ++index)
-	{
-		for (unsigned secondIndex = 1; secondIndex != tempCopyST[0].size(); ++secondIndex)
-		{
-			//swap(tempCopyST[index][secondIndex].state, tempCopyST[index][secondIndex].outputSymbol);
-		}
-	}
-	//
-
-	StateTable oldSTCpy = AllocateOfEquivalenceClass(tempCopyST, sm.GetTable());
+	StateTable oldSTCpy = GetTableEquivalenceClass(tempCopyST, sm.GetTable());
 	StateTable currentSTCpy;
 	do
 	{
-		currentSTCpy = AllocateOfEquivalenceClass(oldSTCpy, sm.GetTable());
+		currentSTCpy = GetTableEquivalenceClass(oldSTCpy, sm.GetTable());
 		oldSTCpy = currentSTCpy;
 
-	} while (oldSTCpy != currentSTCpy);
+	} 
+	while (oldSTCpy != currentSTCpy);
 
 	sm.GetTable() = oldSTCpy;
 	m_jsonStateMachines.push_back(ToJson(sm));

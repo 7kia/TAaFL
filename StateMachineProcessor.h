@@ -4,6 +4,8 @@
 typedef std::map<std::string, SCell> States;
 
 static const std::string IMPOSSIBLE_CONVERT_TO_THIS_TYPE = "Impossible convert to this type!!!";
+static const std::string NOT_EXIST_THIS_STATE_MACHINE = "Cannot find state machine with this id";
+static const std::string NAME_NEW_STATE = "q";
 
 class CStateMachineProcessor
 {
@@ -20,7 +22,7 @@ public:
 	void								Minimize(CStateMachine & sm);
 	CStateMachine &						Get(std::string const& id);
 private:
-	StateTable							AllocateOfEquivalenceClass(StateTable resourceST
+	StateTable							GetTableEquivalenceClass(StateTable resourceST
 																	, StateTable const &originalST);
 	json_spirit::Object					ToJson(CStateMachine const& sm);
 	json_spirit::Array					GetStates(CStateMachine const& sm);
