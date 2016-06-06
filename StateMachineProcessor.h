@@ -18,14 +18,13 @@ public:
 	void								WriteToFile();
 	void								ConvertToMeale(CStateMachine & sm);
 	void								ConvertToMoore(CStateMachine & sm);
-	void								Determine(CStateMachine & sm);
 	void								Minimize(CStateMachine & sm);
 	CStateMachine &						Get(std::string const& id);
 private:
 	StateTable							GetTableEquivalenceClass(StateTable resourceST
 																	, StateTable const &origin);
 
-	json_spirit::Object					ToJson(CStateMachine const& sm);
+	json_spirit::Object					ConvertToJson(CStateMachine const& sm);
 	json_spirit::Array					GetStates(CStateMachine const& sm);
 	json_spirit::Array					GetTransitions(CStateMachine const& sm);
 	States								GetNewStates(StateTable const &meale);
