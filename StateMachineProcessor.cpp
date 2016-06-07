@@ -318,7 +318,7 @@ StateTable CStateMachineProcessor::GetTableEquivalenceClass(StateTable resourceS
 			auto state = classes.find(origin[indexColumn][indexRow].state);
 			if (state != classes.end())
 			{
-				outputST[indexColumn][indexRow].state = to_string(state->second);
+				outputST[indexColumn][indexRow].state = NAME_NEW_STATE + to_string(state->second);
 			}
 		}
 	}

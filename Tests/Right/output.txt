@@ -14,7 +14,7 @@
                 },
                 {
                     "id" : "q2",
-                    "output" : "y1"
+                    "output" : "y3"
                 }
             ],
             "transitions" : [
@@ -30,7 +30,7 @@
                 },
                 {
                     "input" : "x2",
-                    "from" : "q0",
+                    "from" : "q1",
                     "to" : "q2"
                 }
             ]
@@ -62,14 +62,14 @@
                 {
                     "input" : "x1",
                     "output" : "y2",
+                    "from" : "q2",
+                    "to" : "q2"
+                },
+                {
+                    "input" : "x2",
+                    "output" : "y3",
                     "from" : "q2",
                     "to" : "q3"
-                },
-                {
-                    "input" : "x2",
-                    "output" : "y3",
-                    "from" : "q1",
-                    "to" : "q2"
                 }
             ]
         },
@@ -105,8 +105,8 @@
                 },
                 {
                     "input" : "x2",
-                    "output" : "y1",
-                    "from" : "q0",
+                    "output" : "y3",
+                    "from" : "q1",
                     "to" : "q2"
                 }
             ]
@@ -133,19 +133,19 @@
                     "input" : "x1",
                     "output" : "y1",
                     "from" : "q0",
-                    "to" : "1"
+                    "to" : "q1"
                 },
                 {
                     "input" : "x1",
                     "output" : "y2",
                     "from" : "q1",
-                    "to" : "2"
+                    "to" : "q2"
                 },
                 {
                     "input" : "x2",
-                    "output" : "y1",
-                    "from" : "q0",
-                    "to" : "3"
+                    "output" : "y3",
+                    "from" : "q1",
+                    "to" : "q3"
                 }
             ]
         },
@@ -171,19 +171,19 @@
                     "input" : "x1",
                     "output" : "y1",
                     "from" : "q1",
-                    "to" : "1"
+                    "to" : "q1"
                 },
                 {
                     "input" : "x1",
                     "output" : "y2",
                     "from" : "q2",
-                    "to" : "3"
+                    "to" : "q2"
                 },
                 {
                     "input" : "x2",
                     "output" : "y3",
-                    "from" : "q1",
-                    "to" : "2"
+                    "from" : "q2",
+                    "to" : "q3"
                 }
             ]
         }
